@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 from app.database import init_db
-from app.routers import greetings, auth
+from app.routers import greetings, auth,chat
 
 app = FastAPI(
     title="Mini Chatbot Practice API",
@@ -15,6 +15,7 @@ init_db()
 
 app.include_router(greetings.router)
 app.include_router(auth.router)  # Auth endpoint'lerini ekle
+app.include_router(chat.router)
 
 # Router'ı kaydet
 

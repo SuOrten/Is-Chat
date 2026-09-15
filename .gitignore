@@ -1,0 +1,37 @@
+# Sanal ortamlar
+.venv/
+.venv2/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Veritabanı
+*.db
+*.sqlite3
+
+# Ortam değişkenleri / sırlar — .env ASLA commit'lenmez
+.env
+.env.*
+!.env.example
+
+# Loglar ve test
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+
+# İşletim sistemi
+.DS_Store
+Thumbs.db

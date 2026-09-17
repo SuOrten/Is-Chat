@@ -25,15 +25,27 @@ class ModelGardenService:
         # Basic Auth: sicil/ortak hesap + şifre (.env'den gelir, koda gömülmez)
         self.auth = httpx.BasicAuth(MODEL_GARDEN_USERNAME, MODEL_GARDEN_PASSWORD)
 
-    async def generate_response(self, user_message: str, system_prompt: str | None = None) -> str:
+    async def generate_response(
+        self,
+        user_message: str,
+        user_name: str | None = None,
+        system_prompt: str | None = None,
+    ) -> str:
         """
         Kullanıcı mesajını Qwen'e iletir ve modelin cevabını döner.
 
+        - user_name verilirse system prompt'a eklenir (kişiselleştirme).
         - verify=False: kurumsal CA / revocation engeli için (terminaldeki --ssl-no-revoke karşılığı).
           Sadece iç (UAT) ortamlar için; prod'da kurumsal CA doğrulaması açılmalı.
         """
         if system_prompt is None:
-            system_prompt = "Kullanıcının verdiği içeriğe göre Türkçe cevap veren bir asistansın. Sadece Türkçe konuş."
+            if user_name:
+                system_prompt = (
+                    "Kullanıcının verdiği içeriğe göre Türkçe cevap veren bir asistansın. "
+                    f"Kullanıcının adı {user_name}. Kullanıcıyı adıyla selamla ve sadece Türkçe konuş."
+                )
+            else:
+                system_prompt = "Kullanıcının verdiği içeriğe göre Türkçe cevap veren bir asistansın. Sadece Türkçe konuş."
 
         payload = {
             "model": self.model,
@@ -51,8 +63,7 @@ class ModelGardenService:
 
         async with httpx.AsyncClient(verify=False, auth=self.auth, timeout=MODEL_GARDEN_TIMEOUT) as client:
             response = await client.post(url, json=payload)
-            response.raise_for_status()  # 4xx/5xx gelirse exception fırlat
+            response.raise_for_status()
             data = response.json()
 
-        # OpenAI uyumlu yanıt formatı: choices[0].message.content
         return data["choices"][0]["message"]["content"]
